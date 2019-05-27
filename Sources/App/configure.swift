@@ -17,14 +17,19 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
     services.register(middlewares)
 
+    let postgreSQLConfig: PostgreSQLDatabaseConfig
     // Configure a SQLite database
-    let config = PostgreSQLDatabaseConfig(hostname: "0.0.0.0",
-                                          port: 5432,
-                                          username: "postgres",
-                                          database: "marvel",
-                                          password: "Kishi1234",
-                                          transport: .cleartext)
-    let postgres = PostgreSQLDatabase(config: config)
+    if let url = Environment.get("DATABASE_URL") {
+        postgreSQLConfig = PostgreSQLDatabaseConfig(url: url)!
+    } else {
+        postgreSQLConfig = PostgreSQLDatabaseConfig(hostname: "0.0.0.0",
+                                                    port: 5432,
+                                                    username: "postgres",
+                                                    database: "marvel",
+                                                    password: "Kishi1234",
+                                                    transport: .cleartext)
+    }
+    let postgres = PostgreSQLDatabase(config: postgreSQLConfig)
 
     // Register the configured SQLite database to the database config.
     var databases = DatabasesConfig()
