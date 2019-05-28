@@ -9,7 +9,7 @@ public func routes(_ router: Router) throws {
     
     // Basic "Hello, world!" example
     router.get("hello") { req in
-        return "Hello, world!"
+        return "Hello, server is running!"
     }
 
     // Example of configuring a controller
