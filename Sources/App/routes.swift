@@ -20,7 +20,7 @@ public func routes(_ router: Router) throws {
 
     let mkComicController = MKComicController()
     router.get("comics", use: mkComicController.index)
-    router.get("comics", MKComicData.parameter, use: mkComicController.one)
+    router.get("comics", Int.parameter, use: mkComicController.one)
     
     let mkCharacterController = MKCharacterController()
     router.get("characters", use: mkCharacterController.index)
@@ -32,11 +32,11 @@ public func routes(_ router: Router) throws {
 
     let mkEventController = MKEventController()
     router.get("events", use: mkEventController.index)
-    router.get("events", MKEventData.parameter, use: mkEventController.one)
+    router.get("events", Int.parameter, use: mkEventController.one)
 
     let mkStoryController = MKStoryController()
     router.get("stories", use: mkStoryController.index)
-    router.get("stories", MKStoryData.parameter, use: mkStoryController.one)
+    router.get("stories", Int.parameter, use: mkStoryController.one)
 
     let mkSeriesController = MKSeriesController()
     router.get("series", use: mkSeriesController.index)

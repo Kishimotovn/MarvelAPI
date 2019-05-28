@@ -9,13 +9,16 @@ import Vapor
 
 final class MKComicController {
     let signer = MKSigner()
+    let paramsExtractor = MKParamsExtractor()
 
     func one(_ req: Request) throws -> Future<MKComicDataWrapper> {
-        return try req.parameters.next(MKComicData.self).map(to: MKComicDataWrapper.self) { comic in
+        let comicId = try req.parameters.next(Int.self)
+        return MKComicData.find(comicId, on: req).unwrap(or: Abort(.notFound)).map(to: MKComicDataWrapper.self) { comic in
             return MKComicDataWrapper(withSingle: comic)
         }.catchFlatMap { error in
-            let comicId = 0
-            let params = try self.signer.signedParams()
+            let signs = try self.signer.signedParams()
+            let query = self.paramsExtractor.extractParams(from: req.http.url)
+            let params = [signs, query].filter { return !$0.isEmpty }.joined(separator: "&")
             let endpoint = "http://gateway.marvel.com/v1/public/comics/\(comicId)?\(params)"
             return try req.client().get(endpoint).flatMap(to: MKComicDataWrapper.self) { response in
                 return try response.content.decode(MKComicDataWrapper.self)
@@ -25,7 +28,9 @@ final class MKComicController {
 
     func index(_ req: Request) throws -> Future<MKComicDataWrapper> {
         print("params: \(req.query)")
-        let params = try self.signer.signedParams()
+        let signs = try self.signer.signedParams()
+        let query = self.paramsExtractor.extractParams(from: req.http.url)
+        let params = [signs, query].filter { return !$0.isEmpty }.joined(separator: "&")
         let endpoint = "http://gateway.marvel.com/v1/public/comics?\(params)"
         return try req.client().get(endpoint).flatMap(to: MKComicDataWrapper.self) { response in
             return try response.content.decode(MKComicDataWrapper.self)

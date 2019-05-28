@@ -9,13 +9,16 @@ import Vapor
 
 final class MKStoryController {
     let signer = MKSigner()
+    let paramsExtractor = MKParamsExtractor()
     
     func one(_ req: Request) throws -> Future<MKStoryDataWrapper> {
-        return try req.parameters.next(MKStoryData.self).map(to: MKStoryDataWrapper.self) { story in
+        let storyId = try req.parameters.next(Int.self)
+        return MKStoryData.find(storyId, on: req).unwrap(or: Abort(.notFound)).map(to: MKStoryDataWrapper.self) { story in
             return MKStoryDataWrapper(withSingle: story)
         }.catchFlatMap { error in
-            let storyId = 0
-            let params = try self.signer.signedParams()
+            let signs = try self.signer.signedParams()
+            let query = self.paramsExtractor.extractParams(from: req.http.url)
+            let params = [signs, query].filter { return !$0.isEmpty }.joined(separator: "&")
             let endpoint = "http://gateway.marvel.com/v1/public/stories/\(storyId)?\(params)"
             return try req.client().get(endpoint).flatMap(to: MKStoryDataWrapper.self) { response in
                 return try response.content.decode(MKStoryDataWrapper.self)
@@ -24,7 +27,9 @@ final class MKStoryController {
     }
     
     func index(_ req: Request) throws -> Future<MKStoryDataWrapper> {
-        let params = try self.signer.signedParams()
+        let signs = try self.signer.signedParams()
+        let query = self.paramsExtractor.extractParams(from: req.http.url)
+        let params = [signs, query].filter { return !$0.isEmpty }.joined(separator: "&")
         let endpoint = "http://gateway.marvel.com/v1/public/stories?\(params)"
         return try req.client().get(endpoint).flatMap(to: MKStoryDataWrapper.self) { response in
             return try response.content.decode(MKStoryDataWrapper.self)
