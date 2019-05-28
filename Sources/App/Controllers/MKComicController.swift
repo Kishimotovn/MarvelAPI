@@ -24,7 +24,7 @@ final class MKComicController {
                 return try response.content.decode(MKComicDataWrapper.self)
             }.map { wrapper in
                 if let comic = wrapper.data?.results?.first {
-                    _ = comic.create(on: req)
+                    comic.create(on: req)
                 }
                 return wrapper
             }

@@ -24,7 +24,7 @@ final class MKCreatorController {
                 return try response.content.decode(MKCreatorDataWrapper.self)
             }.map { wrapper in
                 if let creator = wrapper.data?.results?.first {
-                    _ = creator.create(on: req)
+                    creator.create(on: req)
                 }
                 return wrapper
             }

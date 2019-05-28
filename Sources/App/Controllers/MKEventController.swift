@@ -22,6 +22,11 @@ final class MKEventController {
             let endpoint = "http://gateway.marvel.com/v1/public/events/\(eventId)?\(params)"
             return try req.client().get(endpoint).flatMap(to: MKEventDataWrapper.self) { response in
                 return try response.content.decode(MKEventDataWrapper.self)
+            }.map { wrapper in
+                if let event = wrapper.data?.results?.first {
+                    event.create(on: req)
+                }
+                return wrapper
             }
         }
     }

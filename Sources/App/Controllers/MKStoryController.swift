@@ -22,6 +22,11 @@ final class MKStoryController {
             let endpoint = "http://gateway.marvel.com/v1/public/stories/\(storyId)?\(params)"
             return try req.client().get(endpoint).flatMap(to: MKStoryDataWrapper.self) { response in
                 return try response.content.decode(MKStoryDataWrapper.self)
+            }.map { wrapper in
+                if let story = wrapper.data?.results?.first {
+                    story.create(on: req)
+                }
+                return wrapper
             }
         }
     }

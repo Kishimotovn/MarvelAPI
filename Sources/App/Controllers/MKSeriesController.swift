@@ -24,7 +24,7 @@ final class MKSeriesController {
                 return try response.content.decode(MKSeriesDataWrapper.self)
             }.map { wrapper in
                 if let series = wrapper.data?.results?.first {
-                    _ = series.create(on: req)
+                    series.create(on: req)
                 }
                 return wrapper
             }
