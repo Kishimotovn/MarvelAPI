@@ -9,6 +9,7 @@ import Vapor
 
 final class MKCharacterController {
     let signer = MKSigner()
+    let paramsExtractor = MKParamsExtractor()
     
     func one(_ req: Request) throws -> Future<MKCharacterDataWrapper> {
         let characterId = try req.parameters.next(Int.self)
