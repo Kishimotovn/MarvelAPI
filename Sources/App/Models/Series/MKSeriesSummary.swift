@@ -8,7 +8,7 @@
 import Vapor
 
 final class MKSeriesSummary: Content {
-    var resoureURI: String?
+    var resourceURI: String?
     var name: String?
 }
 
