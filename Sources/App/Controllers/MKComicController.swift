@@ -22,6 +22,11 @@ final class MKComicController {
             let endpoint = "http://gateway.marvel.com/v1/public/comics/\(comicId)?\(params)"
             return try req.client().get(endpoint).flatMap(to: MKComicDataWrapper.self) { response in
                 return try response.content.decode(MKComicDataWrapper.self)
+            }.map { wrapper in
+                if let comic = wrapper.data?.results?.first {
+                    _ = comic.create(on: req)
+                }
+                return wrapper
             }
         }
     }
