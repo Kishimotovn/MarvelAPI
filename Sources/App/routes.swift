@@ -11,6 +11,9 @@ public func routes(_ router: Router) throws {
     router.get("hello") { req in
         return "Hello, server is running!"
     }
+    
+    let usersController = UsersController()
+    try router.register(collection: usersController)
 
     // Example of configuring a controller
     let todoController = TodoController()
